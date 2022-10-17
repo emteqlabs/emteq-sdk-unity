@@ -4,12 +4,25 @@ using EmteqLabs.Faceplate;
 using EmteqLabs.MaskProtocol;
 using EmteqLabs.Models;
 using UnityEditor;
+using System;
 
 namespace EmteqLabs
 {
     public class EmteqManager : MonoBehaviour
     {
-        public static EmteqManager Instance { get; private set; }
+        private static EmteqManager instance_ = null;
+
+        public static EmteqManager Instance
+        {
+            get
+            {
+                if (instance_ == null)
+                    Debug.LogAssertion("EmteqManager.Instance is NULL");
+
+                return instance_;
+            }
+        }
+
         public static bool ShowContactPrompt = true;
         public static bool DataRecordingOn = false;
 
@@ -23,26 +36,31 @@ namespace EmteqLabs
         public bool ShowLogMessages = true;
         #endregion
 
+        private UnityThreadRelay unityThreadRelay_ = new UnityThreadRelay();
 
         #region EmteqDevice Public Events
         public static event EmteqPlugin.DeviceConnectDelegate OnDeviceConnect
         {
             add
             {
-                _onDeviceConnectDelegate += value;
-                EmteqPlugin.Instance.OnDeviceConnect += OnPluginDeviceConnectHandler;
+                Instance._onDeviceConnectDelegate -= value; // prevents duplication
+                Instance._onDeviceConnectDelegate += value;
             }
             remove
             {
-                _onDeviceConnectDelegate -= value;
-                EmteqPlugin.Instance.OnDeviceConnect -= OnPluginDeviceConnectHandler;
+                Instance._onDeviceConnectDelegate -= value;
             }
         }
 
-        private static EmteqPlugin.DeviceConnectDelegate _onDeviceConnectDelegate;
-        private static void OnPluginDeviceConnectHandler()
+        private EmteqPlugin.DeviceConnectDelegate _onDeviceConnectDelegate;
+        private void OnPluginDeviceConnectHandler()
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            if (_autoStartRecordingData)
+            {
+                StartRecordingData();
+            }
+
+            unityThreadRelay_.Invoke(() =>
             {
                 _onDeviceConnectDelegate?.Invoke();
             });
@@ -52,53 +70,51 @@ namespace EmteqLabs
         {
             add
             {
-                _onDeviceDisconnectDelegate += value;
-                EmteqPlugin.Instance.OnDeviceDisconnect += OnPluginDeviceDisconnectHandler;
+                Instance._onDeviceDisconnectDelegate -= value; // prevents duplication
+                Instance._onDeviceDisconnectDelegate += value;
             }
             remove
             {
-                _onDeviceDisconnectDelegate -= value;
-                EmteqPlugin.Instance.OnDeviceDisconnect -= OnPluginDeviceDisconnectHandler;
+                Instance._onDeviceDisconnectDelegate -= value;
             }
         }
 
-        private static EmteqPlugin.DeviceDisconnectDelegate _onDeviceDisconnectDelegate;
-        private static void OnPluginDeviceDisconnectHandler()
+        private EmteqPlugin.DeviceDisconnectDelegate _onDeviceDisconnectDelegate;
+        private void OnPluginDeviceDisconnectHandler()
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onDeviceDisconnectDelegate?.Invoke();
             });
         }
 
-        public static event EmteqPlugin.LogDelegate OnDeviceLog;
-        private static void OnLogMessageReceivedPluginHandler(string logMessage, LogType logType)
+        public event EmteqPlugin.LogDelegate OnDeviceLog;
+        private void OnLogMessageReceivedPluginHandler(string logMessage, LogType logType)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 Logger.LogMessage(logMessage, logType);
                 OnDeviceLog?.Invoke(logMessage, logType);
             });
         }
 
-        public event EmteqPlugin.DeviceFitStateChangeDelegate OnDeviceFitStateChange
+        public static event EmteqPlugin.DeviceFitStateChangeDelegate OnDeviceFitStateChange
         {
             add
             {
-                _onDeviceFitStateChange += value;
-                EmteqPlugin.Instance.OnDeviceFitStateChange += OnPluginDeviceFitStateChangeHandler;
+                Instance._onDeviceFitStateChange -= value; // prevents duplication
+                Instance._onDeviceFitStateChange += value;
             }
             remove
             {
-                _onDeviceFitStateChange -= value;
-                EmteqPlugin.Instance.OnDeviceFitStateChange -= OnPluginDeviceFitStateChangeHandler;
+                Instance._onDeviceFitStateChange -= value;
             }
         }
 
-        private static EmteqPlugin.DeviceFitStateChangeDelegate _onDeviceFitStateChange;
-        private static void OnPluginDeviceFitStateChangeHandler(FitState fitState)
+        private EmteqPlugin.DeviceFitStateChangeDelegate _onDeviceFitStateChange;
+        private void OnPluginDeviceFitStateChangeHandler(FitState fitState)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onDeviceFitStateChange?.Invoke(fitState);
             });
@@ -108,20 +124,19 @@ namespace EmteqLabs
         {
             add
             {
-                _onSensorContactStateChange += value;
-                EmteqPlugin.Instance.OnSensorContactStateChange += SensorContactStateChangeHandler;
+                Instance._onSensorContactStateChange -= value; // prevents duplication
+                Instance._onSensorContactStateChange += value;
             }
             remove
             {
-                _onSensorContactStateChange -= value;
-                EmteqPlugin.Instance.OnSensorContactStateChange -= SensorContactStateChangeHandler;
+                Instance._onSensorContactStateChange -= value;
             }
         }
 
-        private static event EmteqPlugin.SensorContactStateChangeDelegate _onSensorContactStateChange;
-        private static void SensorContactStateChangeHandler(Dictionary<MuscleMapping, ContactState> sensorContactState)
+        private event EmteqPlugin.SensorContactStateChangeDelegate _onSensorContactStateChange;
+        private void OnSensorContactStateChangeHandler(Dictionary<MuscleMapping, ContactState> sensorContactState)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onSensorContactStateChange?.Invoke(sensorContactState);
             });
@@ -131,20 +146,19 @@ namespace EmteqLabs
         {
             add
             {
-                _onHeartRateAverageUpdate += value;
-                EmteqPlugin.Instance.OnHeartRateAverageUpdate += OnPluginHeartRateAverageUpdateHandler;
+                Instance._onHeartRateAverageUpdate -= value; // prevents duplication
+                Instance._onHeartRateAverageUpdate += value;
             }
             remove
             {
-                _onHeartRateAverageUpdate -= value;
-                EmteqPlugin.Instance.OnHeartRateAverageUpdate -= OnPluginHeartRateAverageUpdateHandler;
+                Instance._onHeartRateAverageUpdate -= value;
             }
         }
 
-        private static event EmteqPlugin.HeartRateAverageUpdateDelegate _onHeartRateAverageUpdate;
-        private static void OnPluginHeartRateAverageUpdateHandler(double bpm)
+        private event EmteqPlugin.HeartRateAverageUpdateDelegate _onHeartRateAverageUpdate;
+        private void OnPluginHeartRateAverageUpdateHandler(double bpm)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onHeartRateAverageUpdate?.Invoke(bpm);
             });
@@ -154,20 +168,19 @@ namespace EmteqLabs
         {
             add
             {
-                _onValenceUpdate += value;
-                EmteqPlugin.Instance.OnValenceUpdate += OnPluginValenceUpdateHandler;
+                Instance._onValenceUpdate -= value; // prevents duplication
+                Instance._onValenceUpdate += value;
             }
             remove
             {
-                _onValenceUpdate -= value;
-                EmteqPlugin.Instance.OnValenceUpdate -= value;
+                Instance._onValenceUpdate -= value;
             }
         }
 
-        private static event EmteqPlugin.ValenceUpdateDelegate _onValenceUpdate;
-        private static void OnPluginValenceUpdateHandler(float normalisedValence)
+        private event EmteqPlugin.ValenceUpdateDelegate _onValenceUpdate;
+        private void OnPluginValenceUpdateHandler(float normalisedValence)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onValenceUpdate?.Invoke(normalisedValence);
             });
@@ -177,21 +190,19 @@ namespace EmteqLabs
         {
             add
             {
-                _onVideoStreamConfigDelegate += value;
-                EmteqPlugin.Instance.OnVideoStreamConfig -= OnVideoStreamConfigHandler;
-                EmteqPlugin.Instance.OnVideoStreamConfig += OnVideoStreamConfigHandler;
+                Instance._onVideoStreamConfigDelegate -= value; // prevents duplication
+                Instance._onVideoStreamConfigDelegate += value;
             }
             remove
             {
-                _onVideoStreamConfigDelegate -= value;
-                EmteqPlugin.Instance.OnVideoStreamConfig -= OnVideoStreamConfigHandler;
+                Instance._onVideoStreamConfigDelegate -= value;
             }
         }
 
-        private static EmteqPlugin.VideoStreamConfigDelegate _onVideoStreamConfigDelegate;
-        private static void OnVideoStreamConfigHandler(string macAddress, string ipAddress, string port)
+        private EmteqPlugin.VideoStreamConfigDelegate _onVideoStreamConfigDelegate;
+        private void OnVideoStreamConfigHandler(string macAddress, string ipAddress, string port)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onVideoStreamConfigDelegate?.Invoke(macAddress, ipAddress, port);
             });
@@ -201,20 +212,18 @@ namespace EmteqLabs
         {
             add
             {
-                _onVideoStreamStatusDelegate += value;
-                EmteqPlugin.Instance.OnVideoStreamStatus -= OnVideoStreamStatusHandler;
-                EmteqPlugin.Instance.OnVideoStreamStatus += OnVideoStreamStatusHandler;
+                Instance._onVideoStreamStatusDelegate -= value; // prevents duplication
+                Instance._onVideoStreamStatusDelegate += value;
             }
             remove
             {
-                _onVideoStreamStatusDelegate -= value;
-                EmteqPlugin.Instance.OnVideoStreamStatus -= OnVideoStreamStatusHandler;
+                Instance._onVideoStreamStatusDelegate -= value;
             }
         }
-        private static EmteqPlugin.VideoStreamStatusDelegate _onVideoStreamStatusDelegate;
-        private static void OnVideoStreamStatusHandler(bool isConnected)
+        private EmteqPlugin.VideoStreamStatusDelegate _onVideoStreamStatusDelegate;
+        private void OnVideoStreamStatusHandler(bool isConnected)
         {
-            UnityThreadRelay.Instance.Invoke(() =>
+            unityThreadRelay_.Invoke(() =>
             {
                 _onVideoStreamStatusDelegate?.Invoke(isConnected);
             });
@@ -222,70 +231,82 @@ namespace EmteqLabs
         #endregion
 
         #region Unity Life Cycle
+
+        private void Update()
+        {
+            unityThreadRelay_.Update();
+        }
+
         void Awake()
         {
-            Application.logMessageReceived += ApplicationOnlogMessageReceived;
-            if (FindObjectOfType<EmteqManager>() != null && Instance != null)
+            // Don't create secondary instance when Emteqmanager is instantiated in multiple scenes
+            if (instance_ != null)
             {
-                Destroy(this.gameObject);
+                Destroy(gameObject);
                 return;
             }
 
+            instance_ = this;
+            Application.logMessageReceived += ApplicationOnlogMessageReceived;
             ShowContactPrompt = _showContactPrompt;
-            DontDestroyOnLoad(this.gameObject);
-            Instance = this;
+            DontDestroyOnLoad(gameObject); //< Don't unload on scene change
+            Debug.Log("EmteqManager Instance Created");
         }
 
         void Start()
         {
-            if (Instance == this)
-            {
-                EmteqPlugin.Instance.OnLogMessageReceived += OnLogMessageReceivedPluginHandler;
-            }
-        }
+            if (instance_ != this)
+                Debug.LogAssertion("EmteqManager.Start() on NON-Instance!");
 
-        void OnEnable()
-        {
-            if (Instance == this)
-            {
-                EmteqPlugin.Instance.OnDeviceConnect += OnDeviceConnectHandler;
-                EmteqPlugin.Instance.Enable();
-            }
-        }
+            EmteqPlugin.Instance.OnDeviceConnect += OnPluginDeviceConnectHandler;
+            EmteqPlugin.Instance.OnDeviceDisconnect += OnPluginDeviceDisconnectHandler;
+            EmteqPlugin.Instance.OnDeviceFitStateChange += OnPluginDeviceFitStateChangeHandler;
+            EmteqPlugin.Instance.OnSensorContactStateChange += OnSensorContactStateChangeHandler;
+            EmteqPlugin.Instance.OnHeartRateAverageUpdate += OnPluginHeartRateAverageUpdateHandler;
+            EmteqPlugin.Instance.OnLogMessageReceived += OnLogMessageReceivedPluginHandler;
+            EmteqPlugin.Instance.OnValenceUpdate += OnPluginValenceUpdateHandler;
+            EmteqPlugin.Instance.OnVideoStreamConfig += OnVideoStreamConfigHandler;
+            EmteqPlugin.Instance.OnVideoStreamStatus += OnVideoStreamStatusHandler;
 
-        private void OnDeviceConnectHandler()
-        {
-            if (_autoStartRecordingData)
-            {
-                StartRecordingData();
-            }
+            EmteqPlugin.Instance.Enable();
         }
 
         void OnDisable()
         {
-            if (Instance == this)
+            if (instance_ != this)
             {
-                StopRecordingData();
-                EmteqPlugin.Instance.OnDeviceConnect -= OnDeviceConnectHandler;
-                EmteqPlugin.Instance.Disable();
+                //Debug.LogAssertion("EmteqManager.OnDisable() on NON-Instance!");
+                return; //< Unity 2021.3.10f1 will stil call `OnDisable` from `Destroy` inside Awake()
             }
+
+            StopRecordingData();
+            EmteqPlugin.Instance.Disable();
+
+            EmteqPlugin.Instance.OnDeviceConnect -= OnPluginDeviceConnectHandler;
+            EmteqPlugin.Instance.OnDeviceDisconnect -= OnPluginDeviceDisconnectHandler;
+            EmteqPlugin.Instance.OnDeviceFitStateChange -= OnPluginDeviceFitStateChangeHandler;
+            EmteqPlugin.Instance.OnSensorContactStateChange -= OnSensorContactStateChangeHandler;
+            EmteqPlugin.Instance.OnHeartRateAverageUpdate -= OnPluginHeartRateAverageUpdateHandler;
+            EmteqPlugin.Instance.OnLogMessageReceived -= OnLogMessageReceivedPluginHandler;
+            EmteqPlugin.Instance.OnValenceUpdate -= OnPluginValenceUpdateHandler;
+            EmteqPlugin.Instance.OnVideoStreamConfig -= OnVideoStreamConfigHandler;
+            EmteqPlugin.Instance.OnVideoStreamStatus -= OnVideoStreamStatusHandler;
         }
 
         private void OnDestroy()
         {
-            if (Instance == this)
+            if (instance_ == this)
             {
-                Application.logMessageReceived -= ApplicationOnlogMessageReceived;
-                EmteqPlugin.Instance.OnLogMessageReceived -= OnLogMessageReceivedPluginHandler;
-                ShowContactPrompt = true;
+                ShowContactPrompt = true;                
+                instance_ = null;
             }
         }
         #endregion
-        
+
         #region Public API Methods
         public static bool IsDeviceConnected()
         {
-            return EmteqPlugin.Instance.IsDeviceConnected();
+            return EmteqPlugin.Instance.IsDeviceOpen;
         }
 
         public static Dictionary<MuscleMapping, ushort> GetEmgAmplitudeRms()

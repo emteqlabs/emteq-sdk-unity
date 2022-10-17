@@ -17,7 +17,7 @@ namespace EmteqLabs
         [SerializeField] private GameObject _baselineInstructions;
         [SerializeField] private GameObject _baselinePanels;
         [SerializeField] private Button _calculateBaselineButton;
-        [FormerlySerializedAs("_showBaselineButton")] [SerializeField] private Button _showResultsButton;
+        [FormerlySerializedAs("_showBaselineButton")][SerializeField] private Button _showResultsButton;
         [SerializeField] private TMP_Text _standardDeviationHRText;
         [SerializeField] private TMP_Text _medianHRText;
 
@@ -26,16 +26,25 @@ namespace EmteqLabs
             // Sync framerate to monitors refresh rate
             QualitySettings.vSyncCount = 1;
 
+            EmteqManager.OnDeviceConnect += OnEmteqDeviceConnectionSuccess;
+            EmteqManager.OnDeviceDisconnect += OnEmteqDeviceConnectionError;
+            EmteqManager.OnHeartRateAverageUpdate += OnHeartRateUpdate;
+
             if (EmteqManager.IsDeviceConnected() == false)
             {
-                EmteqManager.OnDeviceConnect += OnEmteqDeviceConnectionSuccess;
-                EmteqManager.OnDeviceDisconnect += OnEmteqDeviceConnectionError;
                 _statusText.text = ("<color=#00FFFF>Connecting to Emteq Device</color>");
             }
             else
             {
                 OnEmteqDeviceConnectionSuccess();
             }
+        }
+
+        private void OnDisable()
+        {
+            EmteqManager.OnHeartRateAverageUpdate -= OnHeartRateUpdate;
+            EmteqManager.OnDeviceConnect -= OnEmteqDeviceConnectionSuccess;
+            EmteqManager.OnDeviceDisconnect -= OnEmteqDeviceConnectionError;
         }
 
         private void OnEmteqDeviceConnectionError()
@@ -46,7 +55,6 @@ namespace EmteqLabs
         private void OnEmteqDeviceConnectionSuccess()
         {
             _statusText.text = ("<color=#00FFFF>Detecting Heart Rate...</color>");
-            EmteqManager.OnHeartRateAverageUpdate += OnHeartRateUpdate;
         }
 
         private void OnHeartRateUpdate(double hr)
@@ -76,14 +84,6 @@ namespace EmteqLabs
             BaselineHeartRateData baselineHeartRateData = EmteqManager.EndHeartRateBaselineCalibration();
             _standardDeviationHRText.text = baselineHeartRateData.StandardDeviation.ToString("F");
             _medianHRText.text = baselineHeartRateData.Median.ToString("F");
-        }
-
-        private void OnDestroy()
-        {
-            EmteqManager.OnHeartRateAverageUpdate -= OnHeartRateUpdate;
-
-            EmteqManager.OnDeviceConnect -= OnEmteqDeviceConnectionSuccess;
-            EmteqManager.OnDeviceDisconnect -= OnEmteqDeviceConnectionError;
         }
     }
 }

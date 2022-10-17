@@ -12,11 +12,8 @@ namespace EmteqLabs
 
         private Dictionary<MuscleMapping, ushort> _emgAmplitudeRms;
 
-        private bool _initialised = false;
-
         private void Start()
         {
-            _initialised = true;
             EmteqManager.OnSensorContactStateChange += OnSensorContactStateChange;
         }
 
@@ -29,12 +26,9 @@ namespace EmteqLabs
             }
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            if (_initialised == true)
-            {
-                EmteqManager.OnSensorContactStateChange -= OnSensorContactStateChange;
-            }
+            EmteqManager.OnSensorContactStateChange -= OnSensorContactStateChange;
         }
         
         private void OnSensorContactStateChange(Dictionary<MuscleMapping, ContactState> sensorcontactstate)

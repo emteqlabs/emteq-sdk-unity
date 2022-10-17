@@ -92,6 +92,13 @@ namespace Emteq.Runtime.Utilities
             
             this._mainCamera = Camera.main;
         }
+        private void OnDisable()
+        {
+            EmteqManager.OnVideoStreamConfig -= OnVideoStreamConfig;
+            EmteqManager.OnVideoStreamStatus -= OnVideoStreamReport;
+        }
+
+
 
         private void Update()
         {
@@ -238,9 +245,6 @@ namespace Emteq.Runtime.Utilities
         {
             if (Instance == this)
             {
-                EmteqManager.OnVideoStreamConfig -= OnVideoStreamConfig;
-                EmteqManager.OnVideoStreamStatus -= OnVideoStreamReport;
-            
                 DeinitialiseSystem();
             }
             

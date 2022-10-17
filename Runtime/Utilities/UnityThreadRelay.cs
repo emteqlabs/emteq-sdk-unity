@@ -4,20 +4,11 @@ using UnityEngine;
 
 namespace EmteqLabs
 {
-    public class UnityThreadRelay : MonoBehaviour
+    public class UnityThreadRelay
     {
-        private static UnityThreadRelay instance;
-
         private List<Action> pending = new List<Action>();
 
-        public static UnityThreadRelay Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
+        /** Post call to the pending queue */
         public void Invoke(Action fn)
         {
             lock (this.pending)
@@ -39,19 +30,8 @@ namespace EmteqLabs
             }
         }
 
-        private void Awake()
-        {
-            if (instance != null && instance != this)
-            {
-                Destroy(this.gameObject);
-            }
-            else
-            {
-                instance = this;
-            }
-        }
-
-        private void Update()
+        /** Call from destination context */
+        public void Update()
         {
             this.InvokePending();
         }
