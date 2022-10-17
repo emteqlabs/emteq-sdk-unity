@@ -136,3 +136,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0-exp.2] - 2022-08-23
 ### Fixed
 - Fixed issue with Emteq sample prefab references
+
+## [2.0.0-exp.3] - 2022-10-12
+### Fixed
+- Improved serial port connection on both Windows and Android. Includes many bug fixes.
+- Fixed an internal calibration code issue on Android
+
+## [2.0.0-exp.4] - 2022-10-17
+### Fixed
+- Fixed issue calculating heartrate baseline on all platforms
+- Improved robustness of event handling within EmteqManager

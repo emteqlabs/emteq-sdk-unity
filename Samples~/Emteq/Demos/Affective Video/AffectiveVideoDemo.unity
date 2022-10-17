@@ -1618,7 +1618,7 @@ MonoBehaviour:
   _autoPlay: 0
   _showPlayerControl: 1
   _showSubtitles: 1
-  _videoClip: {fileID: 32900000, guid: 4b6e8d9026525a24b8996d0e89ab8285, type: 3}
+  _videoClip: {fileID: 32900000, guid: 10212598b876a294c8928cdb96115402, type: 3}
   _srtFile: {fileID: 4900000, guid: a2ee00fb77b48b84bb06750ecf45e090, type: 3}
 --- !u!1 &3363970431003505326
 GameObject:

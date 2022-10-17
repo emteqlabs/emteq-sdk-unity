@@ -33,7 +33,7 @@ namespace EmteqLabs
             }
 
             Instance = this;
-            
+
             //Set Initial State
             _maskMesh.SetActive(false);
             _maskUI = GetComponentInChildren<CanvasGroup>();
@@ -42,8 +42,17 @@ namespace EmteqLabs
             _maskUI.interactable = false;
 
             SetMainCameraAsParent();
+        }
+
+        private void Start()
+        {
             SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
             EmteqManager.OnSensorContactStateChange += OnSensorContactStateChange;
+        }
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+            EmteqManager.OnSensorContactStateChange -= OnSensorContactStateChange;
         }
 
         private void Update()
@@ -58,15 +67,6 @@ namespace EmteqLabs
             }
         }
 
-        private void OnDestroy()
-        {
-            if (Instance == this)
-            {
-                SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
-                EmteqManager.OnSensorContactStateChange -= OnSensorContactStateChange;
-            }
-        }
-        
         private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             SetMainCameraAsParent();
@@ -89,7 +89,7 @@ namespace EmteqLabs
             var t = _cameraAnchor.transform;
 
             if (t.parent == Camera.main.transform) return;
-            
+
             t.parent = Camera.main.transform;
             t.localPosition = Vector3.zero;
             t.localRotation = Quaternion.identity;
@@ -106,11 +106,11 @@ namespace EmteqLabs
         public void Show()
         {
             Logger.LogMessage("_maskMesh Show");
-            
+
             //Cancel any active tweens first
             LeanTween.cancel(_maskMesh.gameObject);
             LeanTween.cancel(_maskUI.gameObject);
-            
+
             _maskMesh.SetActive(true);
             LeanTween.moveLocalZ(_maskMesh, _contactPromptDistance, 0.3f);
             _maskUI.transform.localPosition = new Vector3(_maskUI.transform.localPosition.x, _maskUI.transform.localPosition.y, _contactPromptDistance);
@@ -122,11 +122,11 @@ namespace EmteqLabs
         public void Hide()
         {
             Logger.LogMessage("_maskMesh Hide");
-            
+
             //Cancel any active tweens first
             LeanTween.cancel(_maskMesh.gameObject);
             LeanTween.cancel(_maskUI.gameObject);
-            
+
             int meshId = LeanTween.moveLocalZ(_maskMesh, 0f, 0.3f).id;
             LTDescr mDescr = LeanTween.descr(meshId);
             if (mDescr != null)

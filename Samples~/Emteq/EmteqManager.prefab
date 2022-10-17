@@ -1784,7 +1784,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2036670792250310392}
   - component: {fileID: 2036670792250310393}
-  - component: {fileID: 4375882420844532066}
   - component: {fileID: 5473127735326388772}
   m_Layer: 0
   m_Name: EmteqManager
@@ -1826,18 +1825,6 @@ MonoBehaviour:
   _autoStartRecordingData: 1
   _showContactPrompt: 1
   ShowLogMessages: 1
---- !u!114 &4375882420844532066
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2036670792250310398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19a7f8d3c6c785a44ae1c28e071d7d4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5473127735326388772
 MonoBehaviour:
   m_ObjectHideFlags: 0

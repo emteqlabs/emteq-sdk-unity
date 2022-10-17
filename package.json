@@ -1,6 +1,6 @@
 {
   "name": "com.emteqlabs.emteqsdk",
-  "version": "2.0.0-exp.2",
+  "version": "2.0.0-exp.4",
   "displayName": "EmteqSdk",
   "description": "Emteq SDK for Unity",
   "unity": "2020.3",
@@ -26,12 +26,12 @@
     {
       "displayName": "Emteq",
       "description": "Demos and API usage for the Emteq SDK",
-      "path": "Samples/Emteq"
+      "path": "Samples~/Emteq"
     },
     {
       "displayName": "Emteq Eye Windows",
       "description": "Demo and APIs for Eye tracking with the Vive Pro Eye",
-      "path": "Samples/Emteq Eye Windows"
+      "path": "Samples~/Emteq Eye Windows"
     }
   ],
   "dependencies": {

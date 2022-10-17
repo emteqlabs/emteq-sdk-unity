@@ -22,16 +22,20 @@ namespace EmteqLabs
         private FitState _currentFitState = FitState.None;
         private bool _isBuffering = false;
         private bool _startContactBuffer = false;
-        private bool _initialised = false;
 
         void Start()
         {
-            _initialised = true;
-            _emteqMaskGUI = GetComponentInChildren <EmteqMaskGUI>();
-            EmteqManager.Instance.OnDeviceFitStateChange += OnFitStateChange;
+            _emteqMaskGUI = GetComponentInChildren<EmteqMaskGUI>();
+
+            EmteqManager.OnDeviceFitStateChange += OnFitStateChange;
+
             _emteqMaskGUI.SetInstructions(_promptMessage);
         }
-        
+        void OnDisable()
+        {
+            EmteqManager.OnDeviceFitStateChange -= OnFitStateChange;
+        }
+
         private void Update()
         {
             EvaluateFitStateStability();
@@ -44,10 +48,6 @@ namespace EmteqLabs
 
         private void OnDestroy()
         {
-            if (_initialised == true)
-            {
-                EmteqManager.Instance.OnDeviceFitStateChange -= OnFitStateChange;
-            }
         }
 
         private void OnFitStateChange(FitState fitState)
