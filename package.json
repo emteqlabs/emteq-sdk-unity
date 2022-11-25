@@ -1,6 +1,6 @@
 {
   "name": "com.emteqlabs.emteqsdk",
-  "version": "2.0.0-exp.4",
+  "version": "2.0.0-exp.5",
   "displayName": "EmteqSdk",
   "description": "Emteq SDK for Unity",
   "unity": "2020.3",
