@@ -146,3 +146,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed issue calculating heartrate baseline on all platforms
 - Improved robustness of event handling within EmteqManager
+
+## [2.0.0-exp.5] - 2022-11-24
+### Fixed
+- Fixed issue causing unreliable sending of datapoint MQTT events
