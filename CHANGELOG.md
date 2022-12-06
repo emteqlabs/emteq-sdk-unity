@@ -150,3 +150,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0-exp.5] - 2022-11-24
 ### Fixed
 - Fixed issue causing unreliable sending of datapoint MQTT events
+
+## [2.0.0-exp.6] - 2022-12-06
+### Added
+- Added support for broadcasting data streams using LabStreamingLayer

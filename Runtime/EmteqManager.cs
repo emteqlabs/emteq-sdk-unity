@@ -25,10 +25,15 @@ namespace EmteqLabs
 
         public static bool ShowContactPrompt = true;
         public static bool DataRecordingOn = false;
+        public static bool LslBroadcastEnabled = false;
 
         #region  Serialisable properties
         [SerializeField]
         private bool _autoStartRecordingData = true;
+
+        [SerializeField]
+        [Tooltip("Warning: May cause instability on Pico")]
+        private bool _autoStartLabStreamingLayerBroadcast = true;
 
         [SerializeField]
         private bool _showContactPrompt = true;
@@ -269,6 +274,11 @@ namespace EmteqLabs
             EmteqPlugin.Instance.OnVideoStreamStatus += OnVideoStreamStatusHandler;
 
             EmteqPlugin.Instance.Enable();
+
+            if (_autoStartLabStreamingLayerBroadcast == true)
+            {
+                EnableLabStreamingLayerBroadcast();
+            }
         }
 
         void OnDisable()
@@ -330,6 +340,20 @@ namespace EmteqLabs
             EmteqPlugin.Instance.StopRecordingData();
             DataRecordingOn = false;
         }
+
+        //Warning: LSL may cause instability on Pico
+        public static void EnableLabStreamingLayerBroadcast()
+        {
+            EmteqPlugin.Instance.EnableLabStreamingLayerBroadcast();
+            LslBroadcastEnabled = true;
+        }
+
+        public static void DisableLabStreamingLayerBroadcast()
+        {
+            EmteqPlugin.Instance.DisableLabStreamingLayerBroadcast();
+            LslBroadcastEnabled = false;
+        }
+
 
         public static void SetParticipantID(string id)
         {

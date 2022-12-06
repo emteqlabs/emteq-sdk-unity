@@ -262,6 +262,10 @@ PrefabInstance:
       propertyPath: _autoStartRecordingData
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2036670792250310393, guid: 7ae2899ff7b4ad44b803c57282e5b2ae, type: 3}
+      propertyPath: _autoStartLabStreamingLayerBroadcast
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2036670792250310398, guid: 7ae2899ff7b4ad44b803c57282e5b2ae, type: 3}
       propertyPath: m_Name
       value: EmteqManager
