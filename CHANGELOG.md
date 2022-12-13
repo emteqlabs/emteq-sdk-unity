@@ -154,3 +154,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0-exp.6] - 2022-12-06
 ### Added
 - Added support for broadcasting data streams using LabStreamingLayer
+
+## [2.0.0-exp.7] - 2022-12-13
+### Added
+- Updates all internal packages to most recent compatible releases
